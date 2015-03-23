@@ -1,6 +1,8 @@
 #include <ncurses.h>
 #include <stdlib.h>
 
+#define KEY_ENTER 0x0d
+
 void init_ncurses();
 void update_board(int rows, int columns, bool cells[rows][columns]);
 void draw_board(int rows, int columns, bool cells[rows][columns]);
@@ -69,7 +71,7 @@ int main()
 			int cur_c, cur_r;
 			switch(getch())
 			{
-				case 'a' :
+				case ' ' :
 					// current cursor row and column
 					cur_c = getcurx(stdscr);
 					cur_r = getcury(stdscr);
@@ -104,7 +106,7 @@ int main()
 					cur_r = getcury(stdscr);
 					move(cur_r, cur_c+1);
 					break;
-				case ' ' :
+				case KEY_ENTER :
 					paused = false;
 					// hide cursor
 					curs_set(0);
@@ -123,6 +125,7 @@ void init_ncurses()
 	initscr();
 	cbreak();
 	noecho();
+	nonl();
 	nodelay(stdscr, true);
 	curs_set(0);
 
