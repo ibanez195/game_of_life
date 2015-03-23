@@ -9,7 +9,7 @@ void draw_board(int rows, int columns, bool cells[rows][columns]);
 int get_num_neighbors(int rows, int columns, bool cells[rows][columns], int r, int c);
 void copy_array(int rows, int columns, bool toBeCopied[rows][columns], bool copy[rows][columns]);
 
-// TODO: find a better key than 'a' to control adding cells
+// TODO: Add flag to change color
 int main()
 {
 	init_ncurses();
@@ -52,8 +52,8 @@ int main()
 	{
 		if(!paused)
 		{
-			// pause on press of space
-			if(getch() == ' ')
+			// pause on press of enter
+			if(getch() == KEY_ENTER)
 			{
 				paused = true;
 			}
