@@ -3,16 +3,16 @@
 
 #define KEY_ENTER 0x0d
 
-void init_ncurses();
+void init_ncurses(int argc, char *argv[]);
 void update_board(int rows, int columns, bool cells[rows][columns]);
 void draw_board(int rows, int columns, bool cells[rows][columns]);
 int get_num_neighbors(int rows, int columns, bool cells[rows][columns], int r, int c);
 void copy_array(int rows, int columns, bool toBeCopied[rows][columns], bool copy[rows][columns]);
 
 // TODO: Add flag to change color
-int main()
+int main(int argc, char *argv[])
 {
-	init_ncurses();
+	init_ncurses(argc, argv);
 
 	bool paused = true;
 
@@ -120,7 +120,7 @@ int main()
 	return 0;
 }// end main
 
-void init_ncurses()
+void init_ncurses(int argc, char *argv[])
 {
 	initscr();
 	cbreak();
@@ -131,7 +131,25 @@ void init_ncurses()
 
 	start_color();
 	use_default_colors();
-	init_pair(1, COLOR_WHITE, COLOR_WHITE);
+
+	if(argc > 1 && argv[1][0] == '-')
+	{
+		switch(argv[1][1])
+		{
+			case 'c' :
+				if(strcmp(argv[2], "black") == 0){init_pair(1, COLOR_BLACK, COLOR_BLACK);}
+				else if(strcmp(argv[2], "red") == 0){init_pair(1, COLOR_RED, COLOR_RED);}
+				else if(strcmp(argv[2], "green") == 0){init_pair(1, COLOR_GREEN, COLOR_GREEN);}
+				else if(strcmp(argv[2], "yellow") == 0){init_pair(1, COLOR_YELLOW, COLOR_YELLOW);}
+				else if(strcmp(argv[2], "blue") == 0){init_pair(1, COLOR_BLUE, COLOR_BLUE);}
+				else if(strcmp(argv[2], "magenta") == 0){init_pair(1, COLOR_MAGENTA, COLOR_MAGENTA);}
+				else if(strcmp(argv[2], "cyan") == 0){init_pair(1, COLOR_CYAN, COLOR_CYAN);}
+				else if(strcmp(argv[2], "white") == 0){init_pair(1, COLOR_WHITE, COLOR_WHITE);}
+				break;
+		}
+	}else{
+		init_pair(1, COLOR_WHITE, COLOR_WHITE);
+	}
 }
 
 void update_board(int rows, int columns, bool cells[rows][columns])
