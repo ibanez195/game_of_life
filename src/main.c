@@ -9,7 +9,7 @@ void draw_board(int rows, int columns, bool cells[rows][columns]);
 int get_num_neighbors(int rows, int columns, bool cells[rows][columns], int r, int c);
 void copy_array(int rows, int columns, bool toBeCopied[rows][columns], bool copy[rows][columns]);
 
-// TODO: Add flag to change color
+// TODO: Add mouse support for adding/removing cells
 int main(int argc, char *argv[])
 {
 	init_ncurses(argc, argv);
