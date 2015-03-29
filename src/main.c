@@ -9,7 +9,7 @@ void draw_board(int rows, int columns, bool cells[rows][columns]);
 int get_num_neighbors(int rows, int columns, bool cells[rows][columns], int r, int c);
 void copy_array(int rows, int columns, bool toBeCopied[rows][columns], bool copy[rows][columns]);
 
-// TODO: Add mouse support for adding/removing cells
+// TODO: Figure out why mouse location is wrong
 int main(int argc, char *argv[])
 {
 	init_ncurses(argc, argv);
@@ -47,6 +47,8 @@ int main(int argc, char *argv[])
 
 	draw_board(rows, columns, cells);
 
+	MEVENT event;
+
 	// main logic loop
 	while(true)
 	{
@@ -71,6 +73,18 @@ int main(int argc, char *argv[])
 			int cur_c, cur_r;
 			switch(getch())
 			{
+				case KEY_MOUSE:
+					if(getmouse(&event) == OK)
+					{
+						// toggle state of cell
+						if(!cells[event.y][event.x])
+						{
+							cells[event.y][event.x] = true;
+						}else{
+							cells[event.y][event.x] = false;
+						}
+					}
+					break;
 				case ' ' :
 					// current cursor row and column
 					cur_c = getcurx(stdscr);
@@ -128,6 +142,8 @@ void init_ncurses(int argc, char *argv[])
 	nonl();
 	nodelay(stdscr, true);
 	curs_set(0);
+
+	mousemask(BUTTON1_PRESSED, NULL);
 
 	start_color();
 	use_default_colors();
