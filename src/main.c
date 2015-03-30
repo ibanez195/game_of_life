@@ -1,5 +1,6 @@
 #include <ncurses.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define KEY_ENTER 0x0d
 
@@ -103,22 +104,50 @@ int main(int argc, char *argv[])
 				case 'h' :
 					cur_c = getcurx(stdscr);
 					cur_r = getcury(stdscr);
-					move(cur_r, cur_c-1);
+
+					if(cur_c == 0)
+					{
+						move(cur_r, COLS-1);
+					}else{
+						move(cur_r, cur_c-1);
+					}
+
 					break;
 				case 'j' :
 					cur_c = getcurx(stdscr);
 					cur_r = getcury(stdscr);
-					move(cur_r+1, cur_c);
+
+					if(cur_r == LINES-1)
+					{
+						move(0, cur_c);
+					}else{
+						move(cur_r+1, cur_c);
+					}
+
 					break;
 				case 'k' :
 					cur_c = getcurx(stdscr);
 					cur_r = getcury(stdscr);
-					move(cur_r-1, cur_c);
+
+					if(cur_r == 0)
+					{
+						move(LINES-1, cur_c);
+					}else{
+						move(cur_r-1, cur_c);
+					}
+
 					break;
 				case 'l' :
 					cur_c = getcurx(stdscr);
 					cur_r = getcury(stdscr);
-					move(cur_r, cur_c+1);
+
+					if(cur_c == COLS-1)
+					{
+						move(cur_r, 0);
+					}else{
+						move(cur_r, cur_c+1);
+					}
+
 					break;
 				case KEY_ENTER :
 					paused = false;
@@ -210,7 +239,7 @@ void draw_board(int rows, int columns, bool cells[rows][columns])
 				// start white on white color
 				attron(COLOR_PAIR(1));
 
-				mvprintw(r, c, "#");
+				mvprintw(r, c, " ");
 
 				// end color
 				attroff(COLOR_PAIR(1));
