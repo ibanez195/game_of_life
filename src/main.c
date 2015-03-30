@@ -10,7 +10,7 @@ void draw_board(int rows, int columns, bool cells[rows][columns]);
 int get_num_neighbors(int rows, int columns, bool cells[rows][columns], int r, int c);
 void copy_array(int rows, int columns, bool toBeCopied[rows][columns], bool copy[rows][columns]);
 
-// TODO: Figure out why mouse location is wrong
+// TODO: Make cursor position stay the same when pausing/unpausing
 int main(int argc, char *argv[])
 {
 	init_ncurses(argc, argv);
@@ -77,13 +77,17 @@ int main(int argc, char *argv[])
 				case KEY_MOUSE:
 					if(getmouse(&event) == OK)
 					{
-						// toggle state of cell
+						move(event.y, event.x);
+
 						if(!cells[event.y][event.x])
 						{
 							cells[event.y][event.x] = true;
 						}else{
 							cells[event.y][event.x] = false;
 						}
+
+						draw_board(rows, columns, cells);
+
 					}
 					break;
 				case ' ' :
@@ -170,9 +174,10 @@ void init_ncurses(int argc, char *argv[])
 	noecho();
 	nonl();
 	nodelay(stdscr, true);
+	keypad(stdscr, true);
 	curs_set(0);
 
-	mousemask(BUTTON1_PRESSED, NULL);
+	mousemask(BUTTON1_CLICKED | REPORT_MOUSE_POSITION, NULL);
 
 	start_color();
 	use_default_colors();
