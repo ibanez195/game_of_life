@@ -9,8 +9,10 @@ void update_board(int rows, int columns, bool cells[rows][columns]);
 void draw_board(int rows, int columns, bool cells[rows][columns]);
 int get_num_neighbors(int rows, int columns, bool cells[rows][columns], int r, int c);
 void copy_array(int rows, int columns, bool toBeCopied[rows][columns], bool copy[rows][columns]);
+void draw_pause_message();
 
 // TODO: Make cursor position stay the same when pausing/unpausing
+// TODO: Fix pause message breaking keyboard cursor movement
 int main(int argc, char *argv[])
 {
 	init_ncurses(argc, argv);
@@ -66,8 +68,11 @@ int main(int argc, char *argv[])
 
 			usleep(delay * 1000);
 		}else{
+			draw_pause_message();
+
 			// show cursor
 			curs_set(1);
+
 			// wait for input with getch()
 			nodelay(stdscr, false);
 
@@ -160,9 +165,9 @@ int main(int argc, char *argv[])
 					// don't wait for input with getch()
 					nodelay(stdscr, true);
 					break;
-			}
-		}
-	}
+			}// end switch
+		}// end else
+	}//end while(true)
 
 	return 0;
 }// end main
@@ -200,6 +205,9 @@ void init_ncurses(int argc, char *argv[])
 	}else{
 		init_pair(1, COLOR_WHITE, COLOR_WHITE);
 	}
+
+	//for top bar
+	init_pair(2, COLOR_BLACK, COLOR_GREEN);
 }
 
 void update_board(int rows, int columns, bool cells[rows][columns])
@@ -293,4 +301,11 @@ void copy_array(int rows, int columns, bool toBeCopied[rows][columns], bool copy
 			copy[r][c] = toBeCopied[r][c];
 		}
 	}
+}
+
+void draw_pause_message()
+{
+	attron(COLOR_PAIR(2));
+	mvprintw(0, 0, "Paused");
+	attroff(COLOR_PAIR(2));
 }
