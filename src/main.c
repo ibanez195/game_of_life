@@ -11,7 +11,7 @@ int get_num_neighbors(int rows, int columns, bool cells[rows][columns], int r, i
 void copy_array(int rows, int columns, bool toBeCopied[rows][columns], bool copy[rows][columns]);
 void draw_pause_message();
 
-// TODO: Make cursor position stay the same when pausing/unpausing
+// TODO: Add flag to set simulation speed
 int main(int argc, char *argv[])
 {
 	init_ncurses(argc, argv);
@@ -54,6 +54,8 @@ int main(int argc, char *argv[])
 	// main logic loop
 	while(true)
 	{
+		int cur_c = getcurx(stdscr);
+		int cur_r = getcury(stdscr);
 		if(!paused)
 		{
 			// pause on press of enter
@@ -61,9 +63,11 @@ int main(int argc, char *argv[])
 			{
 				paused = true;
 				draw_board(rows, columns, cells, paused);
+				move(cur_r, cur_c);
 			}else{
 				update_board(rows, columns, cells);
 				draw_board(rows, columns, cells, paused);
+				move(cur_r, cur_c);
 	
 				usleep(delay * 1000);
 			}
@@ -76,7 +80,6 @@ int main(int argc, char *argv[])
 			// wait for input with getch()
 			nodelay(stdscr, false);
 
-			int cur_c, cur_r;
 			switch(getch())
 			{
 				case KEY_MOUSE:
@@ -92,14 +95,11 @@ int main(int argc, char *argv[])
 						}
 
 						draw_board(rows, columns, cells, paused);
+						move(cur_r, cur_c);
 
 					}
 					break;
 				case ' ' :
-					// current cursor row and column
-					cur_c = getcurx(stdscr);
-					cur_r = getcury(stdscr);
-
 					// toggle state of cell
 					if(!cells[cur_r][cur_c])
 					{
@@ -135,9 +135,6 @@ int main(int argc, char *argv[])
 
 					break;
 				case 'k' :
-					cur_c = getcurx(stdscr);
-					cur_r = getcury(stdscr);
-
 					if(cur_r == 0)
 					{
 						move(LINES-1, cur_c);
@@ -147,9 +144,6 @@ int main(int argc, char *argv[])
 
 					break;
 				case 'l' :
-					cur_c = getcurx(stdscr);
-					cur_r = getcury(stdscr);
-
 					if(cur_c == COLS-1)
 					{
 						move(cur_r, 0);
