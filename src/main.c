@@ -6,13 +6,12 @@
 
 void init_ncurses(int argc, char *argv[]);
 void update_board(int rows, int columns, bool cells[rows][columns]);
-void draw_board(int rows, int columns, bool cells[rows][columns]);
+void draw_board(int rows, int columns, bool cells[rows][columns], bool paused);
 int get_num_neighbors(int rows, int columns, bool cells[rows][columns], int r, int c);
 void copy_array(int rows, int columns, bool toBeCopied[rows][columns], bool copy[rows][columns]);
 void draw_pause_message();
 
 // TODO: Make cursor position stay the same when pausing/unpausing
-// TODO: Fix pause message breaking keyboard cursor movement
 int main(int argc, char *argv[])
 {
 	init_ncurses(argc, argv);
@@ -48,7 +47,7 @@ int main(int argc, char *argv[])
 	cells[middler][middlec+1] = true;
 	cells[middler+1][middlec] = true;
 
-	draw_board(rows, columns, cells);
+	draw_board(rows, columns, cells, paused);
 
 	MEVENT event;
 
@@ -61,14 +60,15 @@ int main(int argc, char *argv[])
 			if(getch() == KEY_ENTER)
 			{
 				paused = true;
+				draw_board(rows, columns, cells, paused);
+			}else{
+				update_board(rows, columns, cells);
+				draw_board(rows, columns, cells, paused);
+	
+				usleep(delay * 1000);
 			}
 
-			update_board(rows, columns, cells);
-			draw_board(rows, columns, cells);
-
-			usleep(delay * 1000);
 		}else{
-			draw_pause_message();
 
 			// show cursor
 			curs_set(1);
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 							cells[event.y][event.x] = false;
 						}
 
-						draw_board(rows, columns, cells);
+						draw_board(rows, columns, cells, paused);
 
 					}
 					break;
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
 						cells[cur_r][cur_c] = false;
 					}
 
-					draw_board(rows, columns, cells);
+					draw_board(rows, columns, cells, paused);
 					move(cur_r, cur_c+1);
 				case 'h' :
 					cur_c = getcurx(stdscr);
@@ -240,7 +240,7 @@ void update_board(int rows, int columns, bool cells[rows][columns])
 	}
 }
 
-void draw_board(int rows, int columns, bool cells[rows][columns])
+void draw_board(int rows, int columns, bool cells[rows][columns], bool paused)
 {
 	int r, c;
 	for(r=0; r < rows; r++)
@@ -261,6 +261,12 @@ void draw_board(int rows, int columns, bool cells[rows][columns])
 			}
 		}
 	}
+
+	if(paused)
+	{
+		draw_pause_message();
+	}
+
 	refresh();
 }
 
