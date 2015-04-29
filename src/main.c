@@ -4,22 +4,65 @@
 
 #define KEY_ENTER 0x0d
 
-void init_ncurses(int argc, char *argv[]);
+void init_ncurses();
 void update_board(int rows, int columns, bool cells[rows][columns]);
 void draw_board(int rows, int columns, bool cells[rows][columns], bool paused);
 int get_num_neighbors(int rows, int columns, bool cells[rows][columns], int r, int c);
 void copy_array(int rows, int columns, bool toBeCopied[rows][columns], bool copy[rows][columns]);
 void draw_pause_message();
 
-// TODO: Add flag to set simulation speed
 int main(int argc, char *argv[])
 {
-	init_ncurses(argc, argv);
-
-	bool paused = true;
+	init_ncurses();
 
 	// for framerate
 	int delay = 50;
+	int speed = 5;
+
+	//default color for cells
+	init_pair(1, COLOR_WHITE, COLOR_WHITE);
+
+	// handle flags
+	if(argc > 1 && argv[1][0] == '-')
+	{
+		int i=1;
+		while(i < argc)
+		{
+			switch(argv[i][1])
+			{
+				case 'c' :
+					if(strcmp(argv[i+1], "black") == 0){init_pair(1, COLOR_BLACK, COLOR_BLACK);}
+					else if(strcmp(argv[i+1], "red") == 0){init_pair(1, COLOR_RED, COLOR_RED);}
+					else if(strcmp(argv[i+1], "green") == 0){init_pair(1, COLOR_GREEN, COLOR_GREEN);}
+					else if(strcmp(argv[i+1], "yellow") == 0){init_pair(1, COLOR_YELLOW, COLOR_YELLOW);}
+					else if(strcmp(argv[i+1], "blue") == 0){init_pair(1, COLOR_BLUE, COLOR_BLUE);}
+					else if(strcmp(argv[i+1], "magenta") == 0){init_pair(1, COLOR_MAGENTA, COLOR_MAGENTA);}
+					else if(strcmp(argv[i+1], "cyan") == 0){init_pair(1, COLOR_CYAN, COLOR_CYAN);}
+					else if(strcmp(argv[i+1], "white") == 0){init_pair(1, COLOR_WHITE, COLOR_WHITE);}
+					i+=2;
+					break;
+				case 's' :
+					speed = atoi(argv[i+1]);
+
+					if(speed < 1)
+					{
+						speed = 1;
+					}else if(speed > 10){
+						speed = 10;
+					}
+
+					delay = 100 - (10 * (speed-1));
+					i+=2;
+					break;
+			}
+		}
+	}
+
+	//for top bar
+	init_pair(2, COLOR_BLACK, COLOR_GREEN);
+
+	bool paused = true;
+
 
 	//get size of terminal window
 	int columns = getmaxx(stdscr);
@@ -166,7 +209,7 @@ int main(int argc, char *argv[])
 	return 0;
 }// end main
 
-void init_ncurses(int argc, char *argv[])
+void init_ncurses()
 {
 	initscr();
 	cbreak();
@@ -180,28 +223,6 @@ void init_ncurses(int argc, char *argv[])
 
 	start_color();
 	use_default_colors();
-
-	if(argc > 1 && argv[1][0] == '-')
-	{
-		switch(argv[1][1])
-		{
-			case 'c' :
-				if(strcmp(argv[2], "black") == 0){init_pair(1, COLOR_BLACK, COLOR_BLACK);}
-				else if(strcmp(argv[2], "red") == 0){init_pair(1, COLOR_RED, COLOR_RED);}
-				else if(strcmp(argv[2], "green") == 0){init_pair(1, COLOR_GREEN, COLOR_GREEN);}
-				else if(strcmp(argv[2], "yellow") == 0){init_pair(1, COLOR_YELLOW, COLOR_YELLOW);}
-				else if(strcmp(argv[2], "blue") == 0){init_pair(1, COLOR_BLUE, COLOR_BLUE);}
-				else if(strcmp(argv[2], "magenta") == 0){init_pair(1, COLOR_MAGENTA, COLOR_MAGENTA);}
-				else if(strcmp(argv[2], "cyan") == 0){init_pair(1, COLOR_CYAN, COLOR_CYAN);}
-				else if(strcmp(argv[2], "white") == 0){init_pair(1, COLOR_WHITE, COLOR_WHITE);}
-				break;
-		}
-	}else{
-		init_pair(1, COLOR_WHITE, COLOR_WHITE);
-	}
-
-	//for top bar
-	init_pair(2, COLOR_BLACK, COLOR_GREEN);
 }
 
 void update_board(int rows, int columns, bool cells[rows][columns])
