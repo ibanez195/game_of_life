@@ -6,7 +6,7 @@
 
 void init_ncurses();
 void update_board(int rows, int columns, bool cells[rows][columns]);
-void draw_board(int rows, int columns, bool cells[rows][columns], bool paused);
+void draw_board(int rows, int columns, bool cells[rows][columns], bool paused, int speed);
 int get_num_neighbors(int rows, int columns, bool cells[rows][columns], int r, int c);
 void copy_array(int rows, int columns, bool toBeCopied[rows][columns], bool copy[rows][columns]);
 void draw_pause_message();
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 	cells[middler][middlec+1] = true;
 	cells[middler+1][middlec] = true;
 
-	draw_board(rows, columns, cells, paused);
+	draw_board(rows, columns, cells, paused, speed);
 
 	MEVENT event;
 
@@ -103,14 +103,27 @@ int main(int argc, char *argv[])
 		if(!paused)
 		{
 			// pause on press of enter
-			if(getch() == KEY_ENTER)
+			int key = getch();
+			if(key == KEY_ENTER)
 			{
 				paused = true;
-				draw_board(rows, columns, cells, paused);
+				draw_board(rows, columns, cells, paused, speed);
 				move(cur_r, cur_c);
+			}else if(key == '-'){
+				if(speed > 0)
+				{
+					speed -= 1;
+				}
+				delay = 100 - (10 * (speed-1));
+			}else if(key == '='){
+				if(speed < 10)
+				{
+					speed += 1;
+				}
+				delay = 100 - (10 * (speed-1));
 			}else{
 				update_board(rows, columns, cells);
-				draw_board(rows, columns, cells, paused);
+				draw_board(rows, columns, cells, paused, speed);
 				move(cur_r, cur_c);
 	
 				usleep(delay * 1000);
@@ -138,7 +151,7 @@ int main(int argc, char *argv[])
 							cells[event.y][event.x] = false;
 						}
 
-						draw_board(rows, columns, cells, paused);
+						draw_board(rows, columns, cells, paused, speed);
 						move(cur_r, cur_c);
 
 					}
@@ -152,7 +165,7 @@ int main(int argc, char *argv[])
 						cells[cur_r][cur_c] = false;
 					}
 
-					draw_board(rows, columns, cells, paused);
+					draw_board(rows, columns, cells, paused, speed);
 					move(cur_r, cur_c+1);
 				case 'h' :
 					cur_c = getcurx(stdscr);
@@ -195,6 +208,22 @@ int main(int argc, char *argv[])
 						move(cur_r, cur_c+1);
 					}
 
+					break;
+				case '-' :
+					if(speed > 0)
+					{
+						speed -= 1;
+					}
+					delay = 100 - (10 * (speed-1));
+					draw_board(rows, columns, cells, paused, speed);
+					break;
+				case '=' :
+					if(speed < 10)
+					{
+						speed += 1;
+					}
+					delay = 100 - (10 * (speed-1));
+					draw_board(rows, columns, cells, paused, speed);
 					break;
 				case KEY_ENTER :
 					paused = false;
@@ -256,7 +285,7 @@ void update_board(int rows, int columns, bool cells[rows][columns])
 	}
 }
 
-void draw_board(int rows, int columns, bool cells[rows][columns], bool paused)
+void draw_board(int rows, int columns, bool cells[rows][columns], bool paused, int speed)
 {
 	int r, c;
 	for(r=0; r < rows; r++)
@@ -277,6 +306,8 @@ void draw_board(int rows, int columns, bool cells[rows][columns], bool paused)
 			}
 		}
 	}
+
+	mvprintw(0, COLS-10, "Speed: %d", speed);
 
 	if(paused)
 	{
