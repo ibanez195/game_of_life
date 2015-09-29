@@ -11,7 +11,7 @@ int get_num_neighbors(int rows, int columns, bool cells[rows][columns], int r, i
 void copy_array(int rows, int columns, bool toBeCopied[rows][columns], bool copy[rows][columns]);
 void draw_pause_message();
 
-//TODO: add way to change speed while program is running
+// TODO: make a way to read text files as input patterns
 int main(int argc, char *argv[])
 {
 	init_ncurses();
