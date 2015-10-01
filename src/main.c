@@ -1,6 +1,8 @@
 #include <ncurses.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+#include <errno.h>
 
 #define KEY_ENTER 0x0d
 
@@ -20,10 +22,43 @@ int main(int argc, char *argv[])
 	int delay = 50;
 	int speed = 5;
 
+	// generation counter
 	int generation = 0;
+
+	// get size of terminal window
+	int columns = getmaxx(stdscr);
+	int rows = getmaxy(stdscr);
+
+	// create cell array
+	bool cells[rows][columns];
+
+	bool paused = true;
+
+	// get middle of screen
+	int middlec = columns/2;
+	int middler = rows/2;
+
+	// prepare for file input
+	FILE *inputfile = NULL;
+	bool usefile = false;
+
+	// initialize array
+	int r, c;
+	for(r=0; r < rows; r++)
+	{
+		for(c=0; c < columns; c++)
+		{
+			cells[r][c] = false;
+		}
+	}
+
+
 
 	//default color for cells
 	init_pair(1, COLOR_WHITE, COLOR_WHITE);
+
+	//for top bar
+	init_pair(2, COLOR_BLACK, COLOR_GREEN);
 
 	// handle flags
 	if(argc > 1 && argv[1][0] == '-')
@@ -33,6 +68,7 @@ int main(int argc, char *argv[])
 		{
 			switch(argv[i][1])
 			{
+				// use user defined color
 				case 'c' :
 					if(strcmp(argv[i+1], "black") == 0){init_pair(1, COLOR_BLACK, COLOR_BLACK);}
 					else if(strcmp(argv[i+1], "red") == 0){init_pair(1, COLOR_RED, COLOR_RED);}
@@ -44,6 +80,7 @@ int main(int argc, char *argv[])
 					else if(strcmp(argv[i+1], "white") == 0){init_pair(1, COLOR_WHITE, COLOR_WHITE);}
 					i+=2;
 					break;
+				// use user defined speed
 				case 's' :
 					speed = atoi(argv[i+1]);
 
@@ -57,41 +94,45 @@ int main(int argc, char *argv[])
 					delay = 100 - (10 * (speed-1));
 					i+=2;
 					break;
+				// use file as input for beginning state
+				case 'f' :
+					usefile = true;
+					inputfile = fopen(argv[i+1], 'r');
+					if(errno < 0)
+					{
+						mvprintw(LINES/2, (COLS/2)-12, "Error reading input file");
+						nodelay(stdscr, false);
+						getch();
+						endwin();
+						exit(1);
+					}
+					break;
 			}
 		}
 	}
 
-	//for top bar
-	init_pair(2, COLOR_BLACK, COLOR_GREEN);
-
-	bool paused = true;
-
-
-	//get size of terminal window
-	int columns = getmaxx(stdscr);
-	int rows = getmaxy(stdscr);
-
-	bool cells[rows][columns];
-
-	// initialize array
-	int r, c;
-	for(r=0; r < rows; r++)
+	// set up beginning state
+	if(usefile)
 	{
-		for(c=0; c < columns; c++)
+		int numlines = 0;
+		char *line = malloc(20*sizeof(char));
+		size_t *length;
+
+		while(getline(&line, &length, inputfile) < 0)
 		{
-			cells[r][c] = false;
+			numlines++;
 		}
+		mvprintw(0, 0, "number of line: %d", numlines);
+		
+	}else{
+		cells[middler-1][middlec] = true;
+		cells[middler-1][middlec-1] = true;
+		cells[middler][middlec] = true;
+		cells[middler][middlec+1] = true;
+		cells[middler+1][middlec] = true;
 	}
 
-	int middlec = columns/2;
-	int middler = rows/2;
 
-	// set up beginning state
-	cells[middler-1][middlec] = true;
-	cells[middler-1][middlec-1] = true;
-	cells[middler][middlec] = true;
-	cells[middler][middlec+1] = true;
-	cells[middler+1][middlec] = true;
 
 	draw_board(rows, columns, cells, paused, speed, generation);
 
