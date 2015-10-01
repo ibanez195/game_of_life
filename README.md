@@ -5,10 +5,10 @@ Conway's game of life implemented in ncurses
 ##Arguments
 - -c COLOR
 
-...Make cells use specified color
+  Make cells use specified color
 - -s SPEED
 
-...Starting speed. Integer from 0-10
+  Starting speed. Integer from 0-10
 - -f FILE
 
   Text file should be formatted as a rectangle of 1s and 0s with 1s representing a live cell e.g.
