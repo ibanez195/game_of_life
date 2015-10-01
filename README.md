@@ -24,3 +24,12 @@ Conway's game of life implemented in ncurses
   1000000001
   1111111111
 ```
+
+##Controls
+- Pause/Unpause - "return"
+- Slow Simulation Speed - "-"
+- Increase Simulation Speed - "="
+### while paused
+- Toggle cell - "space or click"
+- Move Cursor - "h,j,k,l"
+- Step one generation - "s"
