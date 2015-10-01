@@ -11,7 +11,8 @@ Conway's game of life implemented in ncurses
 ...Starting speed. Integer from 0-10
 - -f FILE
 
-  text file should be formatted as a rectangle of 1s and 0s with 1s representing a live cell e.g.
+  Text file should be formatted as a rectangle of 1s and 0s with 1s representing a live cell e.g.
+```
   1111111111
   1000000001
   1011111101
@@ -22,3 +23,4 @@ Conway's game of life implemented in ncurses
   1011111101
   1000000001
   1111111111
+```
