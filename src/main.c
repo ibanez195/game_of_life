@@ -13,7 +13,6 @@ int get_num_neighbors(int rows, int columns, bool cells[rows][columns], int r, i
 void copy_array(int rows, int columns, bool toBeCopied[rows][columns], bool copy[rows][columns]);
 void draw_pause_message();
 
-// TODO: make a way to read text files as input patterns
 int main(int argc, char *argv[])
 {
 	init_ncurses();
@@ -123,7 +122,7 @@ int main(int argc, char *argv[])
 		if(line == NULL)
 		{
 			clear();
-			mvprintw(LINES/2, (COLS/2)-15, "Error while reading input file");
+			mvprintw(LINES/2, (COLS/2)-15, "Memory allocation error");
 			refresh();
 			nodelay(stdscr, true);
 			getch();
@@ -140,14 +139,14 @@ int main(int argc, char *argv[])
 		
 		rewind(inputfile);
 
-		// TODO: fix this shit
-		for(fscanf(inputfile, " %s", line) > 0)
+		for(int r = 0; r < numlines; r++)
 		{
-			for(int i = 0; i < length; i++)
+			fscanf(inputfile, " %s", line);
+			for(int c = 0; c < length; c++)
 			{
-				if(line[i] == '1')
+				if(line[c] == '1')
 				{
-					cells[(rows-numlines)/2][(columns-length)/2];
+					cells[(rows-numlines)/2+r][(columns-length)/2+c] = true;
 				}
 			}
 		}
