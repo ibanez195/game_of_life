@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
 				// use file as input for beginning state
 				case 'f' :
 					usefile = true;
-					inputfile = fopen(argv[i+1], 'r');
+					inputfile = fopen(argv[i+1], "r");
 					if(errno < 0)
 					{
 						mvprintw(LINES/2, (COLS/2)-12, "Error reading input file");
@@ -106,6 +106,7 @@ int main(int argc, char *argv[])
 						endwin();
 						exit(1);
 					}
+					i += 2;
 					break;
 			}
 		}
@@ -114,16 +115,43 @@ int main(int argc, char *argv[])
 	// set up beginning state
 	if(usefile)
 	{
+		int length;
 		int numlines = 0;
-		char *line = malloc(20*sizeof(char));
-		size_t *length;
+		char testline[500];
+		fscanf(inputfile, "%s%n", testline, &length);
+		char* line = malloc(length*sizeof(char));
+		if(line == NULL)
+		{
+			clear();
+			mvprintw(LINES/2, (COLS/2)-15, "Error while reading input file");
+			refresh();
+			nodelay(stdscr, true);
+			getch();
+			endwin();
+			exit(1);
+		}
 
-		while(getline(&line, &length, inputfile) < 0)
+		rewind(inputfile);
+
+		while(fscanf(inputfile, " %s", line) > 0)
 		{
 			numlines++;
 		}
-		mvprintw(0, 0, "number of line: %d", numlines);
 		
+		rewind(inputfile);
+
+		// TODO: fix this shit
+		for(fscanf(inputfile, " %s", line) > 0)
+		{
+			for(int i = 0; i < length; i++)
+			{
+				if(line[i] == '1')
+				{
+					cells[(rows-numlines)/2][(columns-length)/2];
+				}
+			}
+		}
+
 	}else{
 		cells[middler-1][middlec] = true;
 		cells[middler-1][middlec-1] = true;
