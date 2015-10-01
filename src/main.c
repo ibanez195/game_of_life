@@ -297,6 +297,14 @@ int main(int argc, char *argv[])
 					delay = 100 - (10 * (speed-1));
 					draw_board(rows, columns, cells, paused, speed, generation);
 					break;
+
+				case 's' :
+					update_board(rows, columns, cells);
+					draw_board(rows, columns, cells, paused, speed, generation);
+					move(cur_r, cur_c);
+					generation++;
+					break;
+
 				case KEY_ENTER :
 					paused = false;
 					// hide cursor
