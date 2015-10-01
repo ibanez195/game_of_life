@@ -6,7 +6,7 @@
 
 void init_ncurses();
 void update_board(int rows, int columns, bool cells[rows][columns]);
-void draw_board(int rows, int columns, bool cells[rows][columns], bool paused, int speed);
+void draw_board(int rows, int columns, bool cells[rows][columns], bool paused, int speed, int generation);
 int get_num_neighbors(int rows, int columns, bool cells[rows][columns], int r, int c);
 void copy_array(int rows, int columns, bool toBeCopied[rows][columns], bool copy[rows][columns]);
 void draw_pause_message();
@@ -19,6 +19,8 @@ int main(int argc, char *argv[])
 	// for framerate
 	int delay = 50;
 	int speed = 5;
+
+	int generation = 0;
 
 	//default color for cells
 	init_pair(1, COLOR_WHITE, COLOR_WHITE);
@@ -91,7 +93,7 @@ int main(int argc, char *argv[])
 	cells[middler][middlec+1] = true;
 	cells[middler+1][middlec] = true;
 
-	draw_board(rows, columns, cells, paused, speed);
+	draw_board(rows, columns, cells, paused, speed, generation);
 
 	MEVENT event;
 
@@ -107,7 +109,7 @@ int main(int argc, char *argv[])
 			if(key == KEY_ENTER)
 			{
 				paused = true;
-				draw_board(rows, columns, cells, paused, speed);
+				draw_board(rows, columns, cells, paused, speed, generation);
 				move(cur_r, cur_c);
 			}else if(key == '-'){
 				if(speed > 0)
@@ -123,9 +125,11 @@ int main(int argc, char *argv[])
 				delay = 100 - (10 * (speed-1));
 			}else{
 				update_board(rows, columns, cells);
-				draw_board(rows, columns, cells, paused, speed);
+				draw_board(rows, columns, cells, paused, speed, generation);
 				move(cur_r, cur_c);
 	
+				generation++;
+
 				usleep(delay * 1000);
 			}
 
@@ -151,7 +155,7 @@ int main(int argc, char *argv[])
 							cells[event.y][event.x] = false;
 						}
 
-						draw_board(rows, columns, cells, paused, speed);
+						draw_board(rows, columns, cells, paused, speed, generation);
 						move(cur_r, cur_c);
 
 					}
@@ -165,7 +169,7 @@ int main(int argc, char *argv[])
 						cells[cur_r][cur_c] = false;
 					}
 
-					draw_board(rows, columns, cells, paused, speed);
+					draw_board(rows, columns, cells, paused, speed, generation);
 					move(cur_r, cur_c+1);
 				case 'h' :
 					cur_c = getcurx(stdscr);
@@ -215,7 +219,7 @@ int main(int argc, char *argv[])
 						speed -= 1;
 					}
 					delay = 100 - (10 * (speed-1));
-					draw_board(rows, columns, cells, paused, speed);
+					draw_board(rows, columns, cells, paused, speed, generation);
 					break;
 				case '=' :
 					if(speed < 10)
@@ -223,7 +227,7 @@ int main(int argc, char *argv[])
 						speed += 1;
 					}
 					delay = 100 - (10 * (speed-1));
-					draw_board(rows, columns, cells, paused, speed);
+					draw_board(rows, columns, cells, paused, speed, generation);
 					break;
 				case KEY_ENTER :
 					paused = false;
@@ -285,7 +289,7 @@ void update_board(int rows, int columns, bool cells[rows][columns])
 	}
 }
 
-void draw_board(int rows, int columns, bool cells[rows][columns], bool paused, int speed)
+void draw_board(int rows, int columns, bool cells[rows][columns], bool paused, int speed, int generation)
 {
 	int r, c;
 	for(r=0; r < rows; r++)
@@ -307,6 +311,7 @@ void draw_board(int rows, int columns, bool cells[rows][columns], bool paused, i
 		}
 	}
 
+	mvprintw(0, 0, "Generation: %d", generation);
 	mvprintw(0, COLS-10, "Speed: %d", speed);
 
 	if(paused)
@@ -359,6 +364,6 @@ void copy_array(int rows, int columns, bool toBeCopied[rows][columns], bool copy
 void draw_pause_message()
 {
 	attron(COLOR_PAIR(2));
-	mvprintw(0, 0, "Paused");
+	mvprintw(0, (COLS/2)-3, "Paused");
 	attroff(COLOR_PAIR(2));
 }
