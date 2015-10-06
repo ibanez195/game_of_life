@@ -309,6 +309,7 @@ int main(int argc, char *argv[])
 
 				case 'e' :
 					export_to_file(rows, columns, cells);
+					draw_board(rows, columns, cells, paused, speed, generation);
 					break;
 
 				case KEY_ENTER :
@@ -445,8 +446,45 @@ void copy_array(int rows, int columns, bool toBeCopied[rows][columns], bool copy
 
 void export_to_file(int rows, int columns, bool cells[rows][columns])
 {
-	FILE *output = NULL;
-	output = fopen("export", "w+");
+	FIELD *fields[2];
+	FORM *nameform;
+	int ch;
+	char *filename;
+	FILE *output;
+
+	fields[0] = new_field(1, 15, rows/2, columns/2-7, 0, 0);
+	fields[1] = NULL;
+
+	set_field_back(fields[0], A_UNDERLINE);
+	field_opts_off(fields[0], O_AUTOSKIP);
+
+	nameform = new_form(fields);
+	post_form(nameform);
+	refresh();
+
+	while((ch = getch()) != KEY_ENTER)
+	{
+		switch(ch)
+		{
+			case KEY_BACKSPACE:
+				form_driver(nameform, REQ_DEL_PREV);
+				break;
+			default:
+				form_driver(nameform, ch);
+				break;
+		}
+	}
+
+	form_driver(nameform, REQ_VALIDATION);
+	filename = field_buffer(fields[0], 0);
+
+	output = NULL;
+	output = fopen(filename, "w+");
+
+	unpost_form(nameform);
+	free_form(nameform);
+	free_field(fields[0]);
+	free_field(fields[1]);
 
 	int r, c;
 	
