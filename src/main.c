@@ -1,4 +1,5 @@
 #include <ncurses.h>
+#include <form.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -12,6 +13,7 @@ void draw_board(int rows, int columns, bool cells[rows][columns], bool paused, i
 int get_num_neighbors(int rows, int columns, bool cells[rows][columns], int r, int c);
 void copy_array(int rows, int columns, bool toBeCopied[rows][columns], bool copy[rows][columns]);
 void draw_pause_message();
+void export_to_file(int rows, int columns, bool cells[rows][columns]);
 
 int main(int argc, char *argv[])
 {
@@ -305,6 +307,10 @@ int main(int argc, char *argv[])
 					generation++;
 					break;
 
+				case 'e' :
+					export_to_file(rows, columns, cells);
+					break;
+
 				case KEY_ENTER :
 					paused = false;
 					// hide cursor
@@ -435,6 +441,49 @@ void copy_array(int rows, int columns, bool toBeCopied[rows][columns], bool copy
 			copy[r][c] = toBeCopied[r][c];
 		}
 	}
+}
+
+void export_to_file(int rows, int columns, bool cells[rows][columns])
+{
+	FILE *output = NULL;
+	output = fopen("export", "w+");
+
+	int r, c;
+	
+	int topr = rows;
+	int bottomr = 0;
+	int leftc = columns;
+	int rightc = 0;
+
+	for(r = 0; r < rows; r++)
+	{
+		for(c = 0; c < columns; c++)
+		{
+			if(cells[r][c])
+			{
+				if(r < topr){topr = r;}
+				if(r > bottomr){bottomr = r;}
+				if(c < leftc){leftc = c;}
+				if(c > rightc){rightc = c;}
+			}
+		}
+	}
+
+	for(r = topr; r < bottomr; r++)
+	{
+		for(c = leftc; c < rightc; c++)
+		{
+			if(cells[r][c])
+			{
+				fprintf(output, "1");
+			}else{
+				fprintf(output, "0");
+			}
+		}
+		fprintf(output, "\n");
+	}
+
+	fclose(output);
 }
 
 void draw_pause_message()
