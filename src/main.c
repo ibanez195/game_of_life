@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
+#include <ctype.h>
 
 #define KEY_ENTER 0x0d
 
@@ -449,8 +450,10 @@ void export_to_file(int rows, int columns, bool cells[rows][columns])
 	FIELD *fields[2];
 	FORM *nameform;
 	int ch;
+	char *filenamebuffer;
 	char *filename;
 	FILE *output;
+	output = NULL;
 
 	fields[0] = new_field(1, 15, rows/2, columns/2-7, 0, 0);
 	fields[1] = NULL;
@@ -459,6 +462,7 @@ void export_to_file(int rows, int columns, bool cells[rows][columns])
 	field_opts_off(fields[0], O_AUTOSKIP);
 
 	nameform = new_form(fields);
+
 	post_form(nameform);
 	refresh();
 
@@ -476,9 +480,17 @@ void export_to_file(int rows, int columns, bool cells[rows][columns])
 	}
 
 	form_driver(nameform, REQ_VALIDATION);
-	filename = field_buffer(fields[0], 0);
+	filenamebuffer = field_buffer(fields[0], 0);
 
-	output = NULL;
+	// delete trailing whitespace on filename
+	int i = 0;
+	while(isalpha(filenamebuffer[i]))
+	{
+		i++;
+	}
+	memcpy(filename, filenamebuffer, i);
+	
+
 	output = fopen(filename, "w+");
 
 	unpost_form(nameform);
