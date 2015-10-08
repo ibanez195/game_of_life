@@ -6,7 +6,7 @@
 #include <errno.h>
 #include <ctype.h>
 
-#define KEY_ENTER 0x0d
+#define ENTER 0x0d
 
 void init_ncurses();
 void update_board(int rows, int columns, bool cells[rows][columns]);
@@ -120,8 +120,13 @@ int main(int argc, char *argv[])
 		int length;
 		int numlines = 0;
 		char testline[500];
+
+		// use testline to scan for line length
 		fscanf(inputfile, "%s%n", testline, &length);
+
+		// allocate proper memory for line
 		char* line = malloc(length*sizeof(char));
+
 		if(line == NULL)
 		{
 			clear();
@@ -135,6 +140,7 @@ int main(int argc, char *argv[])
 
 		rewind(inputfile);
 
+		// count number of lines in file
 		while(fscanf(inputfile, " %s", line) > 0)
 		{
 			numlines++;
@@ -177,7 +183,7 @@ int main(int argc, char *argv[])
 		{
 			// pause on press of enter
 			int key = getch();
-			if(key == KEY_ENTER)
+			if(key == ENTER)
 			{
 				paused = true;
 				draw_board(rows, columns, cells, paused, speed, generation);
@@ -214,6 +220,7 @@ int main(int argc, char *argv[])
 
 			switch(getch())
 			{
+				// toggle state of clicked cell
 				case KEY_MOUSE:
 					if(getmouse(&event) == OK)
 					{
@@ -231,8 +238,8 @@ int main(int argc, char *argv[])
 
 					}
 					break;
+				// toggle state of highlighted cell
 				case ' ' :
-					// toggle state of cell
 					if(!cells[cur_r][cur_c])
 					{
 						cells[cur_r][cur_c] = true;
@@ -242,6 +249,7 @@ int main(int argc, char *argv[])
 
 					draw_board(rows, columns, cells, paused, speed, generation);
 					move(cur_r, cur_c+1);
+				// move cursor
 				case 'h' :
 					cur_c = getcurx(stdscr);
 					cur_r = getcury(stdscr);
@@ -284,6 +292,7 @@ int main(int argc, char *argv[])
 					}
 
 					break;
+				// adjust speed
 				case '-' :
 					if(speed > 0)
 					{
@@ -301,6 +310,7 @@ int main(int argc, char *argv[])
 					draw_board(rows, columns, cells, paused, speed, generation);
 					break;
 
+				// step one frame
 				case 's' :
 					update_board(rows, columns, cells);
 					draw_board(rows, columns, cells, paused, speed, generation);
@@ -308,12 +318,14 @@ int main(int argc, char *argv[])
 					generation++;
 					break;
 
+				// export current state to file
 				case 'e' :
 					export_to_file(rows, columns, cells);
 					draw_board(rows, columns, cells, paused, speed, generation);
 					break;
 
-				case KEY_ENTER :
+				// unpause simulation
+				case ENTER :
 					paused = false;
 					// hide cursor
 					curs_set(0);
@@ -349,10 +361,9 @@ void update_board(int rows, int columns, bool cells[rows][columns])
 	bool initial_copy[rows][columns];
 	copy_array(rows, columns, cells, initial_copy);
 
-	int r, c;
-	for(r=0; r < rows; r++)
+	for(int r=0; r < rows; r++)
 	{
-		for(c=0; c < columns; c++)
+		for(int c=0; c < columns; c++)
 		{
 			int neighbors = get_num_neighbors(rows, columns, initial_copy, r, c);
 
@@ -375,10 +386,9 @@ void update_board(int rows, int columns, bool cells[rows][columns])
 
 void draw_board(int rows, int columns, bool cells[rows][columns], bool paused, int speed, int generation)
 {
-	int r, c;
-	for(r=0; r < rows; r++)
+	for(int r=0; r < rows; r++)
 	{
-		for(c=0; c < columns; c++)
+		for(int c=0; c < columns; c++)
 		{
 			if(cells[r][c])
 			{
@@ -419,13 +429,16 @@ int get_num_neighbors(int rows, int columns, bool cells[rows][columns], int r, i
 
 	int count = 0;
 
+	// row above current cell
 	if(cells[row_above][column_left]){count++;}
 	if(cells[row_above][c]){count++;}
 	if(cells[row_above][column_right]){count++;}
 
+	// row of current cell
 	if(cells[r][column_left]){count++;}
 	if(cells[r][column_right]){count++;}
 
+	// row below current cell
 	if(cells[row_below][column_left]){count++;}
 	if(cells[row_below][c]){count++;}
 	if(cells[row_below][column_right]){count++;}
@@ -447,26 +460,32 @@ void copy_array(int rows, int columns, bool toBeCopied[rows][columns], bool copy
 
 void export_to_file(int rows, int columns, bool cells[rows][columns])
 {
-	FIELD *fields[2];
-	FORM *nameform;
-	int ch;
+	FILE *output;
 	char *filenamebuffer;
 	char *filename;
-	FILE *output;
+	FORM *nameform;
+	FIELD *fields[2];
+	int ch;
+
 	output = NULL;
 
+	// initialize fields
 	fields[0] = new_field(1, 15, rows/2, columns/2-7, 0, 0);
 	fields[1] = NULL;
 
+	// set field properties
 	set_field_back(fields[0], A_UNDERLINE);
 	field_opts_off(fields[0], O_AUTOSKIP);
 
+	// initialize form with fields
 	nameform = new_form(fields);
 
+	// print form to screen
 	post_form(nameform);
 	refresh();
 
-	while((ch = getch()) != KEY_ENTER)
+	// handle input to form
+	while((ch = getch()) != ENTER)
 	{
 		switch(ch)
 		{
@@ -479,35 +498,38 @@ void export_to_file(int rows, int columns, bool cells[rows][columns])
 		}
 	}
 
+	// extract field buffer
 	form_driver(nameform, REQ_VALIDATION);
 	filenamebuffer = field_buffer(fields[0], 0);
 
 	// delete trailing whitespace on filename
 	int i = 0;
-	while(isalpha(filenamebuffer[i]))
+	while(filenamebuffer[i] != ' ')
 	{
 		i++;
 	}
+	filename = malloc(i*sizeof(char));
 	memcpy(filename, filenamebuffer, i);
 	
 
+	// open file for writing
 	output = fopen(filename, "w+");
 
+	// clean up form
 	unpost_form(nameform);
 	free_form(nameform);
 	free_field(fields[0]);
 	free_field(fields[1]);
 
-	int r, c;
-	
 	int topr = rows;
 	int bottomr = 0;
 	int leftc = columns;
 	int rightc = 0;
 
-	for(r = 0; r < rows; r++)
+	// find first live cell column and row
+	for(int r = 0; r < rows; r++)
 	{
-		for(c = 0; c < columns; c++)
+		for(int c = 0; c < columns; c++)
 		{
 			if(cells[r][c])
 			{
@@ -519,9 +541,10 @@ void export_to_file(int rows, int columns, bool cells[rows][columns])
 		}
 	}
 
-	for(r = topr; r < bottomr; r++)
+	// use found positions to export to file
+	for(int r = topr; r < bottomr; r++)
 	{
-		for(c = leftc; c < rightc; c++)
+		for(int c = leftc; c < rightc; c++)
 		{
 			if(cells[r][c])
 			{
