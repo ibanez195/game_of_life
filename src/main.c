@@ -458,6 +458,7 @@ void copy_array(int rows, int columns, bool toBeCopied[rows][columns], bool copy
 	}
 }
 
+// TODO: label filename entry field
 void export_to_file(int rows, int columns, bool cells[rows][columns])
 {
 	FILE *output;
