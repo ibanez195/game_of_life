@@ -34,3 +34,4 @@ Conway's game of life implemented in ncurses
 - Toggle cell - "space or click"
 - Move Cursor - "h,j,k,l"
 - Step one generation - "s"
+- Export current state to file - "e"
