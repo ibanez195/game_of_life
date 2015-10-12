@@ -10,8 +10,9 @@
 
 void init_ncurses();
 void update_board(int rows, int columns, bool cells[rows][columns]);
-void draw_board(int rows, int columns, bool cells[rows][columns], bool paused, int speed, int generation);
+void draw_board(int rows, int columns, bool cells[rows][columns], bool paused, int speed, int generation, int population);
 int get_num_neighbors(int rows, int columns, bool cells[rows][columns], int r, int c);
+int get_population(int rows, int columns, bool cells[rows][columns]);
 void copy_array(int rows, int columns, bool toBeCopied[rows][columns], bool copy[rows][columns]);
 void draw_pause_message();
 void export_to_file(int rows, int columns, bool cells[rows][columns]);
@@ -24,8 +25,9 @@ int main(int argc, char *argv[])
 	int delay = 50;
 	int speed = 5;
 
-	// generation counter
+	// stats
 	int generation = 0;
+	int population = 0;
 
 	// get size of terminal window
 	int columns = getmaxx(stdscr);
@@ -168,9 +170,10 @@ int main(int argc, char *argv[])
 		cells[middler+1][middlec] = true;
 	}
 
+	population = get_population(rows, columns, cells);
 
 
-	draw_board(rows, columns, cells, paused, speed, generation);
+	draw_board(rows, columns, cells, paused, speed, generation, population);
 
 	MEVENT event;
 
@@ -186,7 +189,7 @@ int main(int argc, char *argv[])
 			if(key == ENTER)
 			{
 				paused = true;
-				draw_board(rows, columns, cells, paused, speed, generation);
+				draw_board(rows, columns, cells, paused, speed, generation, population);
 				move(cur_r, cur_c);
 			}else if(key == '-'){
 				if(speed > 0)
@@ -202,10 +205,12 @@ int main(int argc, char *argv[])
 				delay = 100 - (10 * (speed-1));
 			}else{
 				update_board(rows, columns, cells);
-				draw_board(rows, columns, cells, paused, speed, generation);
 				move(cur_r, cur_c);
 	
 				generation++;
+				population = get_population(rows, columns, cells);
+
+				draw_board(rows, columns, cells, paused, speed, generation, population);
 
 				usleep(delay * 1000);
 			}
@@ -233,7 +238,7 @@ int main(int argc, char *argv[])
 							cells[event.y][event.x] = false;
 						}
 
-						draw_board(rows, columns, cells, paused, speed, generation);
+						draw_board(rows, columns, cells, paused, speed, generation, population);
 						move(cur_r, cur_c);
 
 					}
@@ -247,7 +252,7 @@ int main(int argc, char *argv[])
 						cells[cur_r][cur_c] = false;
 					}
 
-					draw_board(rows, columns, cells, paused, speed, generation);
+					draw_board(rows, columns, cells, paused, speed, generation, population);
 					move(cur_r, cur_c+1);
 				// move cursor
 				case 'h' :
@@ -299,7 +304,7 @@ int main(int argc, char *argv[])
 						speed -= 1;
 					}
 					delay = 100 - (10 * (speed-1));
-					draw_board(rows, columns, cells, paused, speed, generation);
+					draw_board(rows, columns, cells, paused, speed, generation, population);
 					break;
 				case '=' :
 					if(speed < 10)
@@ -307,13 +312,13 @@ int main(int argc, char *argv[])
 						speed += 1;
 					}
 					delay = 100 - (10 * (speed-1));
-					draw_board(rows, columns, cells, paused, speed, generation);
+					draw_board(rows, columns, cells, paused, speed, generation, population);
 					break;
 
 				// step one frame
 				case 's' :
 					update_board(rows, columns, cells);
-					draw_board(rows, columns, cells, paused, speed, generation);
+					draw_board(rows, columns, cells, paused, speed, generation, population);
 					move(cur_r, cur_c);
 					generation++;
 					break;
@@ -321,7 +326,7 @@ int main(int argc, char *argv[])
 				// export current state to file
 				case 'e' :
 					export_to_file(rows, columns, cells);
-					draw_board(rows, columns, cells, paused, speed, generation);
+					draw_board(rows, columns, cells, paused, speed, generation, population);
 					break;
 
 				// unpause simulation
@@ -384,7 +389,7 @@ void update_board(int rows, int columns, bool cells[rows][columns])
 	}
 }
 
-void draw_board(int rows, int columns, bool cells[rows][columns], bool paused, int speed, int generation)
+void draw_board(int rows, int columns, bool cells[rows][columns], bool paused, int speed, int generation, int population)
 {
 	for(int r=0; r < rows; r++)
 	{
@@ -406,6 +411,7 @@ void draw_board(int rows, int columns, bool cells[rows][columns], bool paused, i
 	}
 
 	mvprintw(0, 0, "Generation: %d", generation);
+	mvprintw(1, 0, "Population: %d", population);
 	mvprintw(0, COLS-10, "Speed: %d", speed);
 
 	if(paused)
@@ -444,6 +450,24 @@ int get_num_neighbors(int rows, int columns, bool cells[rows][columns], int r, i
 	if(cells[row_below][column_right]){count++;}
 
 	return count;
+}
+
+int get_population(int rows, int columns, bool cells[rows][columns])
+{
+	int population = 0;
+
+	for(int r = 0; r < rows; r++)
+	{
+		for(int c = 0; c < columns; c++)
+		{
+			if(cells[r][c])
+			{
+				population++;
+			}
+		}
+	}
+
+	return population;
 }
 
 void copy_array(int rows, int columns, bool toBeCopied[rows][columns], bool copy[rows][columns])
