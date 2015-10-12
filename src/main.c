@@ -458,7 +458,6 @@ void copy_array(int rows, int columns, bool toBeCopied[rows][columns], bool copy
 	}
 }
 
-// TODO: label filename entry field
 void export_to_file(int rows, int columns, bool cells[rows][columns])
 {
 	FILE *output;
@@ -466,12 +465,13 @@ void export_to_file(int rows, int columns, bool cells[rows][columns])
 	char *filename;
 	FORM *nameform;
 	FIELD *fields[2];
+	WINDOW *formwin;
 	int ch;
 
 	output = NULL;
 
 	// initialize fields
-	fields[0] = new_field(1, 15, rows/2, columns/2-7, 0, 0);
+	fields[0] = new_field(1, 20, 1, 0, 0, 0);
 	fields[1] = NULL;
 
 	// set field properties
@@ -481,12 +481,21 @@ void export_to_file(int rows, int columns, bool cells[rows][columns])
 	// initialize form with fields
 	nameform = new_form(fields);
 
+	// initialize form window
+	formwin = newwin(7, 35, rows/2-2, columns/2-12);
+	set_form_win(nameform, formwin);
+	set_form_sub(nameform, derwin(formwin, 3, 20, 2, 12));
+
+	box(formwin, 0, 0);
+	mvwprintw(formwin, 1, 9, "Export to file");
+	mvwprintw(formwin, 3, 2, "filename: ");
+
 	// print form to screen
 	post_form(nameform);
-	refresh();
+	wrefresh(formwin);
 
 	// handle input to form
-	while((ch = getch()) != ENTER)
+	while((ch = wgetch(formwin)) != ENTER)
 	{
 		switch(ch)
 		{
