@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <ctype.h>
+#include "main.h"
 
 #define ENTER 0x0d
 
