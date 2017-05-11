@@ -39,4 +39,4 @@ Conway's game of life implemented in ncurses
 - Export current state to file - "e"
 
 ### Screenshot
-![game_of_life](https://cloud.githubusercontent.com/assets/6550505/25973235/324181ac-3671-11e7-8aee-b9391c6cc9df.png))]
+![game_of_life](https://cloud.githubusercontent.com/assets/6550505/25973235/324181ac-3671-11e7-8aee-b9391c6cc9df.png)
