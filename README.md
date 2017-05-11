@@ -11,6 +11,7 @@ Conway's game of life implemented in ncurses
   Starting speed. Integer from 0-10
 - -f FILE
 
+  Use a text file as a starting state
   Text file should be formatted as a rectangle of 1s and 0s with 1s representing a live cell e.g.
 ```
   1111111111
