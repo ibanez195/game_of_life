@@ -35,3 +35,6 @@ Conway's game of life implemented in ncurses
 - Move Cursor - "h,j,k,l"
 - Step one generation - "s"
 - Export current state to file - "e"
+
+### Screenshot
+![game_of_life](https://cloud.githubusercontent.com/assets/6550505/25973235/324181ac-3671-11e7-8aee-b9391c6cc9df.png))]
