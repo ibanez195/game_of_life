@@ -1,8 +1,8 @@
-#Game of Life
+# Game of Life
 
 Conway's game of life implemented in ncurses
 
-##Arguments
+## Arguments
 - -c COLOR
 
   Make cells use specified color
@@ -25,7 +25,7 @@ Conway's game of life implemented in ncurses
   1111111111
 ```
 
-##Controls
+## Controls
 - Pause/Unpause - "return"
 - Slow Simulation Speed - "-"
 - Increase Simulation Speed - "="
