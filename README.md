@@ -2,7 +2,12 @@
 
 Conway's game of life implemented in ncurses
 
-## Arguments
+## Instructions
+To run
+```
+hanoi [-c color] [-f file]
+```
+### Arguments
 - -c COLOR
 
   Make cells use specified color
